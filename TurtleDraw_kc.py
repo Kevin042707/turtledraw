@@ -7,49 +7,58 @@ screen.title("TurtleDraw")
 t = turtle.Turtle()
 t.speed(0)
 t.hideturtle()
+t.penup()
 
-filename = input("Enter the input filename: ")
+filename = input("Enter the name of the input file: ")
 
 try:
-    with open(filename) as file:
-        total_dist = 0
-        pen_down = False
-        prev_x, prev_y = None, None
+    with open(filename, 'r') as file:
+        total_distance = 0
+        prev_point = None
         
         for line in file:
             line = line.strip()
+            if not line:
+                continue
+
             if line.lower() == "stop":
                 t.penup()
-                pen_down = False
+                prev_point = None
                 continue
-            
+
             parts = line.split()
-            if len(parts) != 3:
+            if len(parts) < 3:
                 continue
-            
-            color, x, y = parts[0], float(parts[1]), float(parts[2])
+
+            color = parts[0]
+            try:
+                x = float(parts[1])
+                y = float(parts[2])
+            except ValueError:
+                continue
+
             t.color(color)
             
-            if not pen_down:
-                t.penup()
+            if prev_point is None:
                 t.goto(x, y)
                 t.pendown()
-                pen_down = True
             else:
                 t.goto(x, y)
-                dist = math.dist((prev_x, prev_y), (x, y))
-                total_dist += dist
+                distance = math.sqrt((x - prev_point[0])**2 + (y - prev_point[1])**2)
+                total_distance += distance
             
-            prev_x, prev_y = x, y
-    
-    writer = turtle.Turtle()
-    writer.penup()
-    writer.goto(180, -200)
-    writer.write(f"Total distance: {total_dist:.2f}", align="right")
-    
-    input("Press Enter to close...")
-    
+            t.dot(6, color)
+            prev_point = (x, y)
+        
+        t.penup()
+        t.goto(200, -200)
+        t.write(f"Total Distance: {total_distance:.2f}", align="right", font=("Arial", 12, "normal"))
+
 except FileNotFoundError:
-    print(f"Input file {filename} not found.")
-    
-turtle.done()
+    print(f"File '{filename}' not found.")
+except Exception as e:
+    print("An error occurred:", e)
+
+input("Press Enter to close the window...")
+turtle.bye()
+
