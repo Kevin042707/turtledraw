@@ -9,7 +9,7 @@ t.speed(0)
 t.hideturtle()
 t.penup()
 
-filename = input("turtledraw.txt")
+filename = input("Enter the name of the input file: ")
 
 try:
     with open(filename, 'r') as file:
